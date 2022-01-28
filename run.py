@@ -1,6 +1,6 @@
 import gspread
 from google.oauth2.service_account import Credentials
-from pprint import pprint
+
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -60,7 +60,7 @@ def update_sales_worksheet(val):
     print('Updating sales worksheet...\n')
     sales_worksheet = SHEET.worksheet('sales')
     sales_worksheet.append_row(val)
-    print('Sales worksheet updated successfully')
+    print('Sales worksheet updated successfully\n')
 
 
 def calculate_surplus_data(sales_row):
@@ -72,7 +72,22 @@ def calculate_surplus_data(sales_row):
     """
     print('Calculating surplus data\n')
     stock = SHEET.worksheet('stock').get_all_values()
-    pprint(stock[-1])
+    stock_row = stock[-1]
+    surplus_data = []
+    for st_row, s_row in zip(stock_row, sales_row):
+        surplus = int(st_row) - s_row
+        surplus_data.append(surplus)
+    return surplus_data
+
+
+def update_surplus_worksheet(val):
+    """
+    Update surplus worksheet by adding new row with the data provided
+    """
+    print('Updating surplus worksheet...')
+    surplus_worksheet = SHEET.worksheet('surplus')
+    surplus_worksheet.append_row(val)
+    print(f'Update done! new data {val} \n')
 
 
 def main():
@@ -82,10 +97,11 @@ def main():
     data_value = get_sales_data()
     sales_data = [int(num) for num in data_value]
     update_sales_worksheet(sales_data)
-    calculate_surplus_data(sales_data)
+    new_surplus_data = calculate_surplus_data(sales_data)
+    update_surplus_worksheet(new_surplus_data)
 
 
 print('------------------------------------------------------------')
-print('              Welcome to BOKADOS Data Automation')
+print('     Welcome to BOKADOS Data Automation')
 print('------------------------------------------------------------')
 main()
