@@ -1,6 +1,6 @@
 import gspread
 from google.oauth2.service_account import Credentials
-
+from pprint import pprint
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -12,9 +12,6 @@ CREDS = Credentials.from_service_account_file('creds.json')
 SCOPED_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('bokados')
-
-sales = SHEET.worksheet('sales')
-data = sales.get_all_values()
 
 
 def get_sales_data():
@@ -91,6 +88,20 @@ def calculate_surplus_data(sales_row):
     return surplus_data
 
 
+def get_last_5_entries_values():
+    """
+    Collects columns of data from sales worksheet, 
+    collecting the last 5 entries for each sandwich 
+    and return the data as a list of lists
+    """
+    sales = SHEET.worksheet('sales')
+    columns = []
+    for ind in range(1, 7):
+        column = sales.col_values(ind)
+        columns.append(column[-5:])
+    pprint(columns)
+
+
 def main():
     """
     Run all program function
@@ -105,4 +116,5 @@ def main():
 print('------------------------------------------------------------')
 print('     Welcome to BOKADOS Data Automation')
 print('------------------------------------------------------------')
-main()
+# main()
+get_last_5_entries_values()
