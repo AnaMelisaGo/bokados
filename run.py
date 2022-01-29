@@ -1,6 +1,6 @@
 import gspread
 from google.oauth2.service_account import Credentials
-from pprint import pprint
+# from pprint import pprint
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -81,10 +81,12 @@ def calculate_surplus_data(sales_row):
     print('Calculating surplus data.\n')
     stock = SHEET.worksheet('stock').get_all_values()
     stock_row = stock[-1]
+
     surplus_data = []
     for st_row, s_row in zip(stock_row, sales_row):
         surplus = int(st_row) - s_row
         surplus_data.append(surplus)
+
     return surplus_data
 
 
@@ -99,7 +101,22 @@ def get_last_5_entries_values():
     for ind in range(1, 7):
         column = sales.col_values(ind)
         columns.append(column[-5:])
-    pprint(columns)
+
+    return columns
+
+
+def calculate_stock_data(data):
+    """
+    Calculate the average stock for each item type, adding 10%
+    """
+    print('Calculating stock data...\n')
+    new_stock_data = []
+    for column in data:
+        int_column = [int(num) for num in column]
+        average = sum(int_column) / len(int_column)
+        stock_num = average * 1.1
+        new_stock_data.append(round(stock_num))
+    return new_stock_data
 
 
 def main():
@@ -111,10 +128,12 @@ def main():
     update_worksheet(sales_data, 'sales')
     new_surplus_data = calculate_surplus_data(sales_data)
     update_worksheet(new_surplus_data, 'surplus')
+    sales_column = get_last_5_entries_values()
+    stock_data = calculate_stock_data(sales_column)
+    update_worksheet(stock_data, 'stock')
 
 
 print('------------------------------------------------------------')
 print('     Welcome to BOKADOS Data Automation')
 print('------------------------------------------------------------')
-# main()
-get_last_5_entries_values()
+main()
